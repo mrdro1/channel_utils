@@ -5,8 +5,10 @@ import time
 import telegram
 
 import db_utils
+import utils
 
-BOT = telegram.Bot(token='415110189:AAG_jAHzry6Ykk12qrgnzgOnh06iCnz87Rk')
+TOKEN = utils.read_token()
+BOT = telegram.Bot(token=TOKEN)
 
 
 def send_to_channel(photo_id, chat_id='-1001189643268'):
@@ -20,6 +22,7 @@ def send_to_channel(photo_id, chat_id='-1001189643268'):
         return False
 
     return True
+
 
 
 
