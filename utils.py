@@ -1,8 +1,12 @@
 
 
-def read_token():
-    with open('token.ctl', 'r') as f:
-        token = f.readline()
+def read_token(source):
+    if source == 'tlg':
+        with open('token.ctl', 'r') as f:
+            token = f.readline()
+    if source == 'vk':
+        with open('vk_token.ctl', 'r') as f:
+            token = f.readline()
     return token
 
 def read_login_pwd():

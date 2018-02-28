@@ -7,7 +7,7 @@ import telegram
 import db_utils
 import utils
 
-TOKEN = utils.read_token()
+TOKEN = utils.read_token('tlg')
 BOT = telegram.Bot(token=TOKEN)
 
 tags = ['#sexy', '#body', '#beautiful']
