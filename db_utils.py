@@ -18,3 +18,21 @@ def check_exists(source_id, source):
     exists = ans is not None
     return exists
 
+def get_fn(id):
+    SELECT_SOURCE_AND_SID = 'select source, source_id from photo where id == {}'
+    ans = CURSOR.execute(SELECT_SOURCE_AND_SID.format(id)).fetchone()
+    fn = '//'.join(ans) + '.jpg'
+    return fn
+
+def get_not_used_photo(k=None):
+    SELECT_NOT_USED_PHOTO = 'select id from photo where is_used == 0'
+    SELECT_NOT_USED_PHOTO_WITH_LIMIT = 'select id from photo where is_used == 0 limit {}'
+    if k:
+        query = SELECT_NOT_USED_PHOTO_WITH_LIMIT.format(k)
+    else:
+        query = SELECT_NOT_USED_PHOTO
+    # TODO мб сделать генератор
+    ans = CURSOR.execute(query).fetchall()
+    ans = [row[0] for row in ans]
+    return ans
+
