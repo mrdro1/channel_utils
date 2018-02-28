@@ -32,8 +32,8 @@ class Instagram:
         :param
             - user_id: Account id in instagram
         """
-        result = []
         _first = True
+        count_of_loaded_photo = 0
         next_max_id = None
         while next_max_id or _first:
             try:
@@ -46,14 +46,16 @@ class Instagram:
                         photo_url = item["image_versions2"]["candidates"][0]["url"]
                     except:
                         continue
-                    if K <= 0: return
-                    K -= 1
                     if self._save_photo(photo_url, id, date):
                         db_utils.insert_photo({"source_id" : id, "source" : self.Source, "date" : date})
+                        count_of_loaded_photo += 1
+                        if count_of_loaded_photo % db_utils.COMMIT_COUNT == 0:
+                            db_utils.commit()
                 next_max_id = results.get('next_max_id')
             except:
                 print_message(traceback.format_exc())
-        return result
+        db_utils.commit()
+        return count_of_loaded_photo
 
 
     def get_timeline(self, K):
@@ -65,8 +67,10 @@ class Instagram:
         """
         result = []
         _first = True
+        count_of_loaded_photo = 0
         next_max_id = None
-        while (next_max_id or _first) and K > 0:
+        counter = K
+        while (next_max_id or _first) and counter > 0:
             try:
                 _first = False
                 results = self.API.feed_timeline(max_id=next_max_id)
@@ -77,14 +81,18 @@ class Instagram:
                         photo_url = item["media_or_ad"]["image_versions2"]["candidates"][0]["url"]
                     except:
                         continue
-                    if K <= 0: return
-                    K -= 1
+                    if counter <= 0: return
+                    counter -= 1
                     if self._save_photo(photo_url, id, date):
                         db_utils.insert_photo({"source_id" : id, "source" : self.Source, "date" : date})
+                        count_of_loaded_photo += 1
+                        if count_of_loaded_photo % db_utils.COMMIT_COUNT == 0:
+                            db_utils.commit()
                 next_max_id = results.get('next_max_id')
             except:
                 print_message(traceback.format_exc())
-
+        db_utils.commit()
+        return count_of_loaded_photo
 
     def get_followings_accounts(self):
         """ Get followings accounts from current user """
@@ -116,7 +124,7 @@ def main():
     start_time = datetime.now()
     login, password = utils.read_login_pwd()
     insta = Instagram(login, password)
-    insta.get_timeline(1000)
+    insta.get_timeline(5)
     r = insta.get_followings_accounts()
     insta.get_user_photo(r[0]['pk'])
     end_time = datetime.now()

@@ -2,6 +2,7 @@ import sqlite3
 
 CONN = sqlite3.connect('default_files//photo.db')
 CURSOR = CONN.cursor()
+COMMIT_COUNT = 5
 
 def set_used(id, is_used=1):
     UPDATE_IS_USED_PHOTO_BY_ID = 'update photo set is_used == :is_used where id == :id'
@@ -36,3 +37,8 @@ def get_not_used_photo(k=None):
     ans = [row[0] for row in ans]
     return ans
 
+def commit():
+    CONN.commit()
+
+def rollback():
+    CONN.rollback()
