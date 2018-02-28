@@ -1,5 +1,6 @@
 import random
 import time
+import traceback
 
 import vk
 
@@ -10,23 +11,28 @@ session = vk.AuthSession(access_token=token)
 API = vk.API(session)
 IDS = ['-35807284']
 
+SUCCESS_POST = 0
+
 # TODO в комменты фотки
 def send_comment_to_video(msg, ids, count=20):
     for id in ids:
         # TODO переделай count
         try:
-            t = random.randint(1)
-            time.sleep()
+            t = random.randint(10, 11)
+            time.sleep(t)
             videos_info = API.video.get(owner_id=id, count=count)[1:]
         except:
-            print('нет доступа к видео {}'.format(id))
+            #print('нет доступа к видео {}'.format(id))
             continue
         for i, video in enumerate(videos_info):
             try:
                 API.video.createComment(owner_id=id, video_id=video['vid'], message=msg)
                 print('послал коммент')
+                global SUCCESS_POST
+                SUCCESS_POST += 1
             except:
-                print('для группы {} комменты на стене заблокированы'.format(id))
+                #print('для группы {} комменты на стене заблокированы'.format(id))
+                pass
             if i == count:
                 break
     return 0
@@ -43,7 +49,6 @@ def like_to_friend():
         except:
             print("Не удалось добавить {} в друзья.".format(bad_user_id))
 
-
 def kill_badman():
     """ Kill badman whois del me from friends! """
     for bad_user_id in API.friends.getRequests(out=1, need_viewed=1):
@@ -59,16 +64,22 @@ def kill_badman():
 def send_comment_to_wall_post(msg, ids, count=20):
     for id in ids:
         try:
+            t = random.randint(10, 11)
+            time.sleep(t)
             posts_info = API.wall.get(owner_id=id, count=count)[1:]
         except:
-            print('нет доступа к постам {}'.format(id))
+            print(traceback.format_exc())
+            #print('нет доступа к постам {}'.format(id))
             continue
         for i, post in enumerate(posts_info):
             try:
                 API.wall.createComment(owner_id=id, post_id=post['id'], message=msg)
                 print('послал коммент на стену')
+                global SUCCESS_POST
+                SUCCESS_POST += 1
             except:
-                print('для группы {} комменты на стене заблокированы'.format(id))
+                print(traceback.format_exc())
+                #print('для группы {} комменты на стене заблокированы'.format(id))
             if i == count:
                 break
         return 0
@@ -77,28 +88,36 @@ def send_post_on_wall(msg, id):
     try:
         API.wall.post(owner_id=id, message=msg)
         print('постнул на стену {}'.format(id))
+        global SUCCESS_POST
+        SUCCESS_POST += 1
     except:
-        print('не постнул на стену((( {}'.format(id))
+        print(traceback.format_exc())
+        #print('не постнул на стену((( {}'.format(id))
+        pass
     return 0
 
 
 def send_comment_to_photo(msg, ids, count=20, limit_al=2):
     for id in ids:
         try:
+            t = random.randint(10, 11)
+            time.sleep(t)
             albums = API.photos.getAlbums(owner_id=id)
             if not albums:
-                print('Для Группы {0} нет фото'.format(id))
-                return False
+                #print('Для Группы {0} нет фото'.format(id))
+                continue
         except Exception as e:
-            print(e)
-            print('Для Группы {0} недоступны фото'.format(id))
-            return False
+            #print(e)
+            #print('Для Группы {0} недоступны фото'.format(id))
+            continue
 
-        print('Всего альбомов {}'.format(len(albums)))
+        #print('Всего альбомов {}'.format(len(albums)))
         for i_alb, album in enumerate(albums):
             if i_alb == limit_al:
                 break
-            print('Текущий альбом {}'.format(i_alb))
+            #print('Текущий альбом {}'.format(i_alb))
+            t = random.randint(10, 11)
+            time.sleep(t)
             photos = API.photos.get(owner_id=id, count=count, album_id=album['aid'])  #  Получаем список фото
 
             for photo in photos:
@@ -106,23 +125,34 @@ def send_comment_to_photo(msg, ids, count=20, limit_al=2):
                 try:
                     API.photos.createComment(owner_id=id, photo_id=photo_id, message=msg)
                     print('добавил коммент под фотку')
+                    global SUCCESS_POST
+                    SUCCESS_POST += 1
                 except:
-                    print("не смог закоментить фото в группе {}".format(id))
+                    print(traceback.format_exc())
+                    #print("не смог закоментить фото в группе {}".format(id))
+                    pass
     return 0
 
 
-def get_gid_for_query(q):
-    groups = API.groups.search(q=q, count=1000)
+def get_gid_for_query(q, offset=20):
+    groups = API.groups.search(q=q, count=1000, offset=offset)
     print(len(groups))
     gid = ['-' + str(g['gid']) for g in groups[1:]]
     return gid
 
-ids = get_gid_for_query(q='эротика')
 
-msg = 'Лайк за дружбу'
+if __name__ == '__main__':
 
-send_comment_to_photo(msg, ids, count=100)
-send_comment_to_video(msg, ids, count=100)
-send_comment_to_wall_post(msg, ids, count=100)
-for id in ids:
-    send_post_on_wall(msg, id)
+    ids = get_gid_for_query(q='спортивные девушки', offset=2)[:10]
+    #ids = ['-465675969']
+
+    msg = 'Лайк за дружбу'
+
+    send_comment_to_photo(msg, ids, count=100)
+    send_comment_to_video(msg, ids, count=100)
+    send_comment_to_wall_post(msg, ids, count=100)
+    for id in ids:
+        send_post_on_wall(msg, id)
+
+    print('#'*100)
+    print('успешных постов = {}'.format(SUCCESS_POST))
