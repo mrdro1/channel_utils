@@ -6,6 +6,8 @@ import time
 #pip install git+https://git@github.com/ping/instagram_private_api.git@1.4.0
 from instagram_private_api import Client, ClientCompatPatch
 #
+import db_utils
+import utils
 
 
 # CONSOLE LOG
@@ -19,6 +21,7 @@ class Instagram:
     """ Class for collect photo from instagram """
 
     def __init__(self, login, password):
+        self.Source = "Instagram"
         self.API = Client(login, password)
 
 
@@ -36,7 +39,17 @@ class Instagram:
             try:
                 _first = False
                 results = self.API.user_feed(user_id=user_id, max_id=next_max_id)
-                result.extend([item for item in results.get('items', []) if item.get('image_versions2').get('candidates')])
+                for item in results.get('items', []):
+                    try:
+                        id = item["id"]
+                        date = item["caption"]["created_at"]
+                        photo_url = item["image_versions2"]["candidates"][0]["url"]
+                    except:
+                        continue
+                    if K <= 0: return
+                    K -= 1
+                    if self._save_photo(photo_url, id, date):
+                        db_utils.insert_photo({"source_id" : id, "source" : self.Source, "date" : date})
                 next_max_id = results.get('next_max_id')
             except:
                 print_message(traceback.format_exc())
@@ -53,16 +66,25 @@ class Instagram:
         result = []
         _first = True
         next_max_id = None
-        while next_max_id or _first:
+        while (next_max_id or _first) and K > 0:
             try:
                 _first = False
                 results = self.API.feed_timeline(max_id=next_max_id)
-                result.extend([item for item in results.get('feed_items', []) if item.get('media_or_ad')])
+                for item in results.get('feed_items', []):
+                    try:
+                        id = item["media_or_ad"]["id"]
+                        date = item["media_or_ad"]["caption"]["created_at"]
+                        photo_url = item["media_or_ad"]["image_versions2"]["candidates"][0]["url"]
+                    except:
+                        continue
+                    if K <= 0: return
+                    K -= 1
+                    if self._save_photo(photo_url, id, date):
+                        db_utils.insert_photo({"source_id" : id, "source" : self.Source, "date" : date})
                 next_max_id = results.get('next_max_id')
-                if len(result) >= K: break
             except:
                 print_message(traceback.format_exc())
-        return result[:K]
+
 
     def get_followings_accounts(self):
         """
@@ -72,34 +94,33 @@ class Instagram:
         return self.API.user_following(self.API.authenticated_user_id).get('users')
 
 
-    def _save_photo():
-        pass
-        print_message("Save photos...")
-        for i, item in enumerate(items):
+    def _save_photo(self, url, source_id, source_time):
+        TRY_COUNTS = 3
+        try_counter = TRY_COUNTS
+        result = False
+        while(try_counter > 0):
             try:
-                print_message("Process photo #{} (total {})".format(i, len(items)), 1)
-                ClientCompatPatch.media(item['media_or_ad'])
-                filename = "{}_{}.jpg".format(item['media_or_ad']['id'], item['media_or_ad']['created_time'])
-                if os.path.exists("{}{}".format(PATH, filename)): 
-                    print_message("Photo {} already exists, skip".format(filename), 2)
-                    continue
-                print_message("Get photo by url {}".format(item['media_or_ad']['images']['standard_resolution']['url']), 2)
-                p = requests.get(item['media_or_ad']['images']['standard_resolution']['url'])
+                if db_utils.check_exists(source_id, self.Source):
+                    break
+                filename = r".\{}\{}.jpg".format(self.Source, source_id)
+                p = requests.get(url)
                 if p.status_code == 200:
-                    print_message("Save photo {}".format(filename), 2)
-                    with open(r"D:\girls\{}".format(filename), "wb") as f:
+                    with open(filename, "wb") as f:
                         f.write(p.content)
+                        result = True
+                        break
             except:
                 print_message(traceback.format_exc())
+            try_counter -= 1
+        return result
+
 
 def main():
     start_time = datetime.now()
-    login = "opora2017"
-    password = "girls_scrapper"
-    insta = Instagram(login, password)
-    print_message(len(insta.get_timeline(1000)))
-    print_message(len(insta.get_followings_accounts()))
-    print_message(len(insta.get_user_photo(r[0]['pk'])))
+    insta = Instagram(utils.read_login_pwd()[0], utils.read_login_pwd()[1])
+    insta.get_timeline(1000)
+    r = insta.get_followings_accounts()
+    insta.get_user_photo(r[0]['pk'])
     end_time = datetime.now()
     print_message("Run began on {0}".format(start_time))
     print_message("Run ended on {0}".format(end_time))
