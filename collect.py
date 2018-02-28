@@ -99,6 +99,12 @@ class Instagram:
         return self.API.user_following(self.API.authenticated_user_id).get('users')
 
 
+    def load_all_following_photo(self):
+        """ Download all photo from each following account """
+        for account in self.get_followings_accounts():
+            self.get_user_photo(account['pk'])
+ 
+
     def _save_photo(self, url, source_id, source_time):
         TRY_COUNTS = 3
         try_counter = TRY_COUNTS
@@ -124,9 +130,7 @@ def main():
     start_time = datetime.now()
     login, password = utils.read_login_pwd()
     insta = Instagram(login, password)
-    insta.get_timeline(5)
-    r = insta.get_followings_accounts()
-    insta.get_user_photo(r[0]['pk'])
+    insta.load_all_following_photo()
     end_time = datetime.now()
     print_message("Run began on {0}".format(start_time))
     print_message("Run ended on {0}".format(end_time))
