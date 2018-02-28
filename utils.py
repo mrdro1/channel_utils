@@ -9,10 +9,16 @@ def read_token(source):
             token = f.readline()
     return token
 
+def read_token_twitter():
+    with open('tw_token.ctl', 'r') as f:
+        tokens = f.readlines()
+        APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET = [t.strip() for t in tokens]
+    return APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET
+
 def read_login_pwd():
     with open('login_pwd.ctl', 'r') as f:
         login, pwd = f.readline().split(':')
     return login, pwd
 
-#a = read_login_pwd()
+#a = read_token_twitter()
 #print(a)
