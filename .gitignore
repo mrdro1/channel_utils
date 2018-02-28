@@ -2,3 +2,5 @@
 *.xml
 *.ctl
 *.pyproj
+*.jpg
+*.pyc

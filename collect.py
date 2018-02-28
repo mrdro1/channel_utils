@@ -2,6 +2,7 @@
 import traceback
 from datetime import datetime
 import time
+import requests
 #
 # pip install git+https://git@github.com/ping/instagram_private_api.git@1.4.0
 from instagram_private_api import Client, ClientCompatPatch
@@ -86,10 +87,7 @@ class Instagram:
 
 
     def get_followings_accounts(self):
-        """
-        Get followings accounts from current user
-
-        """
+        """ Get followings accounts from current user """
         return self.API.user_following(self.API.authenticated_user_id).get('users')
 
 
