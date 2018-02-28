@@ -1,3 +1,6 @@
+import random
+import time
+
 import vk
 
 import utils
@@ -12,6 +15,8 @@ def send_comment_to_video(msg, ids, count=20):
     for id in ids:
         # TODO переделай count
         try:
+            t = random.randint(1)
+            time.sleep()
             videos_info = API.video.get(owner_id=id, count=count)[1:]
         except:
             print('нет доступа к видео {}'.format(id))
@@ -70,6 +75,7 @@ def send_comment_to_photo(msg, ids, count=20, limit_al=2):
                 break
             print('Текущий альбом {}'.format(i_alb))
             photos = API.photos.get(owner_id=id, count=count, album_id=album['aid'])  #  Получаем список фото
+
             for photo in photos:
                 photo_id = photo['pid']  #  Получаем адрес изображения
                 try:
