@@ -3,10 +3,9 @@ import vk
 import utils
 
 token = utils.read_token()
-session = vk.AuthSession(access_token="640164396e80a2398acf0514d3fbd546438848004b5b3936fa3f3eb770f5d016177a382b3c025acde2492")
+session = vk.AuthSession(access_token=token)
 API = vk.API(session)
 IDS = ['-35807284']
-ID = 475921606
 
 # TODO в комменты фотки
 def send_comment_to_video(msg, ids, count=20):
@@ -27,27 +26,24 @@ def send_comment_to_video(msg, ids, count=20):
 def like_to_friend():
     """ Accept friend and set like to avatar """
     for user_id in API.friends.getRequests(need_viewed=1):
-        photo_id = API.users.get(user_ids=user_id, fields="photo_id")[0].get("photo_id").split('_')[1]
-        if API.likes.isLiked(type="photo", owner_id=user_id, item_id=photo_id) == 0:
-            API.likes.add(type="photo", owner_id=user_id, item_id=photo_id)
-        API.friends.add(user_id=user_id, follow=0)
-        API.messages.send(user_id=user_id, message="Hi! You are my new best friend!")
+        try:
+            photo_id = API.users.get(user_ids=user_id, fields="photo_id")[0].get("photo_id").split('_')[1]
+            if API.likes.isLiked(type="photo", owner_id=user_id, item_id=photo_id) == 0:
+                API.likes.add(type="photo", owner_id=user_id, item_id=photo_id)
+            API.friends.add(user_id=user_id, follow=0)
+            API.messages.send(user_id=user_id, message="Привет ;-)")
+        except:
+            print("Не удалось добавить {} в друзья.".format(bad_user_id))
 
 
 def kill_badman():
     """ Kill badman whois del me from friends! """
     for bad_user_id in API.friends.getRequests(out=1, need_viewed=1):
-        photo_id = API.users.get(user_ids=bad_user_id, fields="photo_id")[0].get("photo_id").split('_')[1]
-        API.messages.send(user_id=bad_user_id, message="Bye, BADMAN!!! :-(")
-        if API.likes.isLiked(type="photo", owner_id=bad_user_id, item_id=photo_id) == 1:
-            API.likes.delete(type="photo", owner_id=bad_user_id, item_id=photo_id)
-        API.friends.delete(user_id=bad_user_id)
-
-
-def main():
-    like_to_friend()
-    kill_badman()
-
-
-if __name__ == "__main__":
-    main()
+        try:
+            photo_id = API.users.get(user_ids=bad_user_id, fields="photo_id")[0].get("photo_id").split('_')[1]
+            API.messages.send(user_id=bad_user_id, message="Пока, BADMAN!!! :-(")
+            if API.likes.isLiked(type="photo", owner_id=bad_user_id, item_id=photo_id) == 1:
+                API.likes.delete(type="photo", owner_id=bad_user_id, item_id=photo_id)
+            API.friends.delete(user_id=bad_user_id)
+        except:
+            print("Не удалось исключить {} из друзей.".format(bad_user_id))
