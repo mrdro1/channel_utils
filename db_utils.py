@@ -5,11 +5,7 @@ CURSOR = CONN.cursor()
 COMMIT_COUNT = 5
 
 def set_used(id, is_used=1):
-<<<<<<< HEAD
     UPDATE_IS_USED_PHOTO_BY_ID = 'update photo set is_used = :is_used where id = :id'
-=======
-    UPDATE_IS_USED_PHOTO_BY_ID = 'update photo set is_used = :is_used where id == :id'
->>>>>>> dda0f9a5130aac53b40a373214f6b06916b07068
     ans = CURSOR.execute(UPDATE_IS_USED_PHOTO_BY_ID, {"is_used":is_used, "id":id})
     return ans
 
