@@ -126,21 +126,15 @@ class Instagram:
         return result
 
 
-def main():
-    start_time = datetime.now()
-    login, password = utils.read_login_pwd()
-    insta = Instagram(login, password)
-<<<<<<< HEAD
-    insta.get_timeline(40)
-    #r = insta.get_followings_accounts()
-    #insta.get_user_photo(r[0]['pk'])
-=======
-    insta.load_all_following_photo()
->>>>>>> dda0f9a5130aac53b40a373214f6b06916b07068
-    end_time = datetime.now()
-    print_message("Run began on {0}".format(start_time))
-    print_message("Run ended on {0}".format(end_time))
-    print_message("Elapsed time was: {0}".format(end_time - start_time))
+#def main():
+#    start_time = datetime.now()
+#    login, password = utils.read_login_pwd()
+#    insta = Instagram(login, password)
+#    insta.load_all_following_photo()
+#    end_time = datetime.now()
+#    print_message("Run began on {0}".format(start_time))
+#    print_message("Run ended on {0}".format(end_time))
+#    print_message("Elapsed time was: {0}".format(end_time - start_time))
 
-if __name__ == "__main__":
-    main()
+#if __name__ == "__main__":
+#    main()
