@@ -3,12 +3,11 @@ import traceback
 from datetime import datetime
 import time
 #
-#pip install git+https://git@github.com/ping/instagram_private_api.git@1.4.0
+# pip install git+https://git@github.com/ping/instagram_private_api.git@1.4.0
 from instagram_private_api import Client, ClientCompatPatch
 #
 import db_utils
 import utils
-
 
 # CONSOLE LOG
 cfromat = "[{0}] {1}{2}"
@@ -117,7 +116,8 @@ class Instagram:
 
 def main():
     start_time = datetime.now()
-    insta = Instagram(utils.read_login_pwd()[0], utils.read_login_pwd()[1])
+    login, password = utils.read_login_pwd()
+    insta = Instagram(login, password)
     insta.get_timeline(1000)
     r = insta.get_followings_accounts()
     insta.get_user_photo(r[0]['pk'])
