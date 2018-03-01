@@ -41,26 +41,35 @@ def like_to_friend():
     """ Accept friend and set like to avatar """
     for user_id in API.friends.getRequests(need_viewed=1):
         try:
-            photo_id = API.users.get(user_ids=user_id, fields="photo_id")[0].get("photo_id").split('_')[1]
-            if API.likes.isLiked(type="photo", owner_id=user_id, item_id=photo_id) == 0:
-                API.likes.add(type="photo", owner_id=user_id, item_id=photo_id)
+            photo_id = API.users.get(user_ids=user_id, fields="photo_id")[0].get("photo_id")
+            if photo_id:
+                photo_id = photo_id.split('_')[1]
+                if API.likes.isLiked(type="photo", owner_id=user_id, item_id=photo_id) == 0:
+                    API.likes.add(type="photo", owner_id=user_id, item_id=photo_id)
             API.friends.add(user_id=user_id, follow=0)
             API.messages.send(user_id=user_id, message="Привет ;-)")
+            time.sleep(5)
         except:
-            print("Не удалось добавить {} в друзья.".format(bad_user_id))
+            print("Не удалось добавить {} в друзья.".format(user_id))
+            print(traceback.format_exc())
 
 def kill_badman():
     """ Kill badman whois del me from friends! """
     for bad_user_id in API.friends.getRequests(out=1, need_viewed=1):
         try:
-            photo_id = API.users.get(user_ids=bad_user_id, fields="photo_id")[0].get("photo_id").split('_')[1]
+            photo_id = API.users.get(user_ids=bad_user_id, fields="photo_id")[0].get("photo_id")
+            if photo_id:
+                photo_id = photo_id.split('_')[1]
+                if API.likes.isLiked(type="photo", owner_id=bad_user_id, item_id=photo_id) == 1:
+                    API.likes.delete(type="photo", owner_id=bad_user_id, item_id=photo_id)
             API.messages.send(user_id=bad_user_id, message="Пока, BADMAN!!! :-(")
-            if API.likes.isLiked(type="photo", owner_id=bad_user_id, item_id=photo_id) == 1:
-                API.likes.delete(type="photo", owner_id=bad_user_id, item_id=photo_id)
             API.friends.delete(user_id=bad_user_id)
+            time.sleep(5)
         except:
             print("Не удалось исключить {} из друзей.".format(bad_user_id))
-
+            print(traceback.format_exc())
+            
+            
 def send_comment_to_wall_post(msg, ids, count=20):
     for id in ids:
         try:
@@ -138,9 +147,15 @@ def get_gid_for_query(q, offset=20):
     gid = ['-' + str(g['gid']) for g in groups[1:]]
     return gid
 
+def send_message_to_telegram_chats():
+    client.get_entity(chat_user_name)
 
 if __name__ == '__main__':
-
+    while(True):
+        like_to_friend()
+        time.sleep(60 * 1)
+        kill_badman()
+        time.sleep(60 * 1)
     ids = get_gid_for_query(q='спортивные девушки', offset=2)[:10]
     #ids = ['-465675969']
 
