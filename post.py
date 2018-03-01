@@ -26,11 +26,12 @@ def send_to_channel(photo_id, chat_id='-1001189643268'):
 
     return True
 
+if __name__ == '__main__':
 
-chat_id='-1001189643268'
-for i, id in enumerate(db_utils.get_not_used_photo()):
-    send_to_channel(id)
-    print('I post new photo')
-    time.sleep(2)
-    if i == 50:
-        break
+    chat_id='-1001189643268'
+    for i, id in enumerate(db_utils.get_not_used_photo()):
+        send_to_channel(id)
+        print('I post new photo')
+        time.sleep(2)
+        if i == 50:
+            break

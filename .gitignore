@@ -5,3 +5,5 @@
 *.jpg
 *.pyc
 *.db
+*.db
+default_files/photo.db

@@ -126,13 +126,7 @@ class Instagram:
         return result
 
 
-from twython import Twython
-APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET = utils.read_token_twitter()
-twitter = Twython(APP_KEY, APP_SECRET,
-                  OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
-photo = open('Instagram//1556580472682647402_5722067892.jpg', 'rb')
-response = twitter.upload_media(media=photo)
-twitter.update_status(status='Checkout this cool image! ' + , media_ids=[response['media_id']])
+
 
 #def main():
 #    start_time = datetime.now()
