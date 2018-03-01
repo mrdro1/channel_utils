@@ -111,7 +111,6 @@ def send_post_on_wall(msg, id):
         pass
     return 0
 
-
 def send_comment_to_photo(msg, ids, count=20, limit_al=2):
     for id in ids:
         try:
@@ -147,7 +146,6 @@ def send_comment_to_photo(msg, ids, count=20, limit_al=2):
                     #print("не смог закоментить фото в группе {}".format(id))
                     pass
     return 0
-
 
 def get_gid_for_query(q, offset=20):
     groups = API.groups.search(q=q, count=1000, offset=offset)
