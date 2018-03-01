@@ -5,6 +5,10 @@ import traceback
 import vk
 
 import utils
+import telegram
+
+TOKEN = utils.read_token('tlg')
+BOT = telegram.Bot(token=TOKEN)
 
 token = utils.read_token('vk')
 session = vk.AuthSession(access_token=token)
@@ -57,12 +61,14 @@ def kill_badman():
     """ Kill badman whois del me from friends! """
     for bad_user_id in API.friends.getRequests(out=1, need_viewed=1):
         try:
-            photo_id = API.users.get(user_ids=bad_user_id, fields="photo_id")[0].get("photo_id")
+            user_info = API.users.get(user_ids=bad_user_id, fields="photo_id, can_write_private_message")[0]
+            photo_id = user_info.get("photo_id")
             if photo_id:
                 photo_id = photo_id.split('_')[1]
                 if API.likes.isLiked(type="photo", owner_id=bad_user_id, item_id=photo_id) == 1:
                     API.likes.delete(type="photo", owner_id=bad_user_id, item_id=photo_id)
-            API.messages.send(user_id=bad_user_id, message="Пока, BADMAN!!! :-(")
+            if user_info.get("can_write_private_message") == 1:
+                API.messages.send(user_id=bad_user_id, message="Пока, BADMAN!!! :-(")
             API.friends.delete(user_id=bad_user_id)
             time.sleep(5)
         except:
@@ -150,12 +156,52 @@ def get_gid_for_query(q, offset=20):
     return gid
 
 def send_message_to_telegram_chats():
-    client.get_entity(chat_user_name)
+    from telethon import TelegramClient
+    from telethon.utils import get_display_name
+    from telethon.tl.types import InputPeerChat
+
+    api_id = 165394
+    api_hash = '42193b1c6ff424bf14a3e852bea3b8b0'
+    phone = '+79035350898'
+    #phone = '+79998022698'
+
+    client = TelegramClient('@Sess81', api_id, api_hash)
+    client.connect()
+    client.sign_in(phone=phone)
+    #code = 74352
+    #me = client.sign_in(code=code)
+    me = client.sign_in(code=input('введи код из сообщения от телеги: '))
+    print(client.is_user_authorized())
+
+    chat_user_name = 'or_dg'
+    chats = [
+        "@atypical_chat",
+        "@PrTalk2",
+        "@chat30",
+        "@bezdna42",
+        "@odeepwebchat",
+        "@findkievchat",
+        "@ru2chhw",
+        "@govorismari",
+        "@littlepkbspb",
+        "@TGPR_RealType",
+        "@zayavi_o_sebe",
+        "@ru2chkz",
+        "@d4rkchat",
+        "@trollchat"
+        ]
+    message = r"Ребят, смотрите классный канал нашёл недавно https://t.me/join_relaxxx"  
+    for chat in chats:
+        channel = client.get_entity(chat)
+        client.send_message(channel, "")
+        time.sleep(2)
+    pass
 
 if __name__ == '__main__':
+    #send_message_to_telegram_chats()
     while(True):
-        like_to_friend()
-        time.sleep(60 * 1)
+        #like_to_friend()
+        #time.sleep(60 * 1)
         kill_badman()
         time.sleep(60 * 1)
     ids = get_gid_for_query(q='спортивные девушки', offset=2)[:10]
