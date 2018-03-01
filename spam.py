@@ -46,8 +46,9 @@ def like_to_friend():
                 API.likes.add(type="photo", owner_id=user_id, item_id=photo_id)
             API.friends.add(user_id=user_id, follow=0)
             API.messages.send(user_id=user_id, message="Привет ;-)")
+            time.sleep(5)
         except:
-            print("Не удалось добавить {} в друзья.".format(bad_user_id))
+            print("Не удалось добавить {} в друзья.".format(user_id))
 
 def kill_badman():
     """ Kill badman whois del me from friends! """
@@ -58,6 +59,7 @@ def kill_badman():
             if API.likes.isLiked(type="photo", owner_id=bad_user_id, item_id=photo_id) == 1:
                 API.likes.delete(type="photo", owner_id=bad_user_id, item_id=photo_id)
             API.friends.delete(user_id=bad_user_id)
+            time.sleep(5)
         except:
             print("Не удалось исключить {} из друзей.".format(bad_user_id))
 
@@ -140,6 +142,11 @@ def get_gid_for_query(q, offset=20):
     gid = ['-' + str(g['gid']) for g in groups[1:]]
     return gid
 
+#while(True):
+#    like_to_friend()
+#    time.sleep(60 * 2)
+#    kill_badman()
+#    time.sleep(60 * 2)
 
 if __name__ == '__main__':
 
