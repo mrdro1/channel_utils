@@ -13,8 +13,8 @@ BOT = telegram.Bot(token=TOKEN)
 tags = [
         '#sexy', '#body', '#beautiful', '#girl', '#girls', 
         '#perfect', '#supergirls', '#model', '#beauty', '#glamour',
-        '#lingerie', '#sensual', '#fitnessmodel', '#фитнес', 
-        '#sport', '#fitnessgirl', '#HOT', '#hotgirl', '#bestgirl', '#beautifulbody'
+        '#lingerie', '#sensual', '#fitnessmodel', '#bestgirl', 
+        '#sport', '#fitnessgirl', '#hot', '#hotgirl', '#beautifulbody'
        ]
 	   
 def send_to_channel(photo_id, chat_id='-1001189643268'):
