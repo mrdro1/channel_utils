@@ -10,8 +10,13 @@ import utils
 TOKEN = utils.read_token('tlg')
 BOT = telegram.Bot(token=TOKEN)
 
-tags = ['#sexy', '#body', '#beautiful']
-
+tags = [
+        '#sexy', '#body', '#beautiful', '#girl', '#girls', 
+        '#perfect', '#supergirls', '#model', '#beauty', '#glamour',
+        '#lingerie', '#sensual', '#fitnessmodel', '#фитнес', 
+        '#sport', '#fitnessgirl', '#HOT', '#hotgirl', '#bestgirl', '#beautifulbody'
+       ]
+	   
 def send_to_channel(photo_id, chat_id='-1001189643268'):
     fn = db_utils.get_fn(photo_id)
     try:
