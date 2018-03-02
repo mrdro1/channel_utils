@@ -1,4 +1,12 @@
+from datetime import datetime
+import time
 
+# CONSOLE LOG
+cfromat = "[{0}] {1}{2}"
+def print_message(message, level=0):
+    level_indent = " " * level
+    print(cfromat.format(datetime.now(), level_indent, message))
+#
 
 def read_token(source):
     if source == 'tlg':

@@ -26,8 +26,8 @@ def get_fn(id):
     return fn
 
 def get_not_used_photo(k=None):
-    SELECT_NOT_USED_PHOTO = 'select id from photo where is_used == 0'
-    SELECT_NOT_USED_PHOTO_WITH_LIMIT = 'select id from photo where is_used == 0 limit {}'
+    SELECT_NOT_USED_PHOTO = 'select id from photo where is_used == 0 ORDER BY RANDOM()'
+    SELECT_NOT_USED_PHOTO_WITH_LIMIT = 'select id from photo where is_used == 0 ORDER BY RANDOM() limit {}'
     if k:
         query = SELECT_NOT_USED_PHOTO_WITH_LIMIT.format(k)
     else:

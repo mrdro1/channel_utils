@@ -10,13 +10,6 @@ from instagram_private_api import Client, ClientCompatPatch
 import db_utils
 import utils
 
-# CONSOLE LOG
-cfromat = "[{0}] {1}{2}"
-def print_message(message, level=0):
-    level_indent = " " * level
-    print(cfromat.format(datetime.now(), level_indent, message))
-#
-
 class Instagram:
     """ Class for collect photo from instagram """
 
@@ -53,7 +46,7 @@ class Instagram:
                             db_utils.commit()
                 next_max_id = results.get('next_max_id')
             except:
-                print_message(traceback.format_exc())
+                utils.print_message(traceback.format_exc())
         db_utils.commit()
         return count_of_loaded_photo
 
@@ -90,7 +83,7 @@ class Instagram:
                             db_utils.commit()
                 next_max_id = results.get('next_max_id')
             except:
-                print_message(traceback.format_exc())
+                utils.print_message(traceback.format_exc())
         db_utils.commit()
         return count_of_loaded_photo
 
@@ -101,8 +94,10 @@ class Instagram:
 
     def load_all_following_photo(self):
         """ Download all photo from each following account """
+        count_of_loaded_photo = 0
         for account in self.get_followings_accounts():
-            self.get_user_photo(account['pk'])
+            count_of_loaded_photo += self.get_user_photo(account['pk'])
+        return count_of_loaded_photo
  
 
     def _save_photo(self, url, source_id, source_time):
@@ -121,22 +116,6 @@ class Instagram:
                         result = True
                         break
             except:
-                print_message(traceback.format_exc())
+                utils.print_message(traceback.format_exc())
             try_counter -= 1
         return result
-
-
-
-
-#def main():
-#    start_time = datetime.now()
-#    login, password = utils.read_login_pwd()
-#    insta = Instagram(login, password)
-#    insta.load_all_following_photo()
-#    end_time = datetime.now()
-#    print_message("Run began on {0}".format(start_time))
-#    print_message("Run ended on {0}".format(end_time))
-#    print_message("Elapsed time was: {0}".format(end_time - start_time))
-
-#if __name__ == "__main__":
-#    main()
