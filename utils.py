@@ -28,5 +28,11 @@ def read_login_pwd():
         login, pwd = f.readline().split(':')
     return login, pwd
 
-#a = read_token_twitter()
-#print(a)
+def read_tlg_token():
+    with open('tlg_client_token.ctl', 'r') as fin:
+        line = fin.readline()
+        api_id, api_hash, phone = line.split(',')
+    return api_id, api_hash, phone
+
+a = read_tlg_token()
+print(a)
