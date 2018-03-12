@@ -135,8 +135,9 @@ def send_comment_to_wall_post(msg, ids, count=20, use_random_photo=False):
                 utils.print_message('послал коммент на стену. id сообщества: {}'.format(id))
                 global SUCCESS_POST
                 SUCCESS_POST += 1
-            except vk.exceptions.VkAPIError as e:
-                if e.code == 213:
+                if e.code == 14:
+                    input("Введите капчу. Нажмите Enter для продолжения.")
+                elif e.code == 213:
                     utils.print_message('для группы {} комменты на стене заблокированы'.format(id))
                     break
                 else:
@@ -199,8 +200,9 @@ def send_comment_to_photo(msg, ids, count=20, limit_al=2, use_random_photo=False
                     utils.print_message('добавил коммент под фотку, owner={}'.format(id))
                     global SUCCESS_POST
                     SUCCESS_POST += 1
-                except vk.exceptions.VkAPIError as e:
-                    if e.code == 213:
+                    if e.code == 14:
+                        input("Введите капчу. Нажмите Enter для продолжения.")
+                    elif e.code == 213:
                         utils.print_message('для группы {} комменты к фото заблокированы'.format(id))
                         break
                     else:
@@ -232,7 +234,9 @@ def send_comment_to_video(msg, ids, count=20, use_random_photo=False):
                 global SUCCESS_POST
                 SUCCESS_POST += 1
             except vk.exceptions.VkAPIError as e:
-                if e.code == 213:
+                if e.code == 14:
+                    input("Введите капчу. Нажмите Enter для продолжения.")
+                elif e.code == 801:
                     utils.print_message('для группы {} комменты к видео заблокированы'.format(id))
                     break
                 else:
