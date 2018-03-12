@@ -1,11 +1,15 @@
 import random
 import time
 import traceback
+import os
+import requests
+import json
 #
 import vk
 import telegram
 #
 import utils
+import db_utils
 
 TOKEN = utils.read_token('tlg')
 BOT = telegram.Bot(token=TOKEN)
@@ -14,32 +18,61 @@ token = utils.read_token('vk')
 session = vk.AuthSession(access_token=token)
 API = vk.API(session)
 IDS = ['-35807284']
-
+TMP_ALBUM = '253436161'
 SUCCESS_POST = 0
 
-# TODO в комменты фотки
-def send_comment_to_video(msg, ids, count=20):
-    for id in ids:
-        # TODO переделай count
-        try:
-            t = random.randint(10, 11)
-            time.sleep(t)
-            videos_info = API.video.get(owner_id=id, count=count)[1:]
-        except:
-            #utils.print_message('нет доступа к видео {}'.format(id))
-            continue
-        for i, video in enumerate(videos_info):
-            try:
-                API.video.createComment(owner_id=id, video_id=video['vid'], message=msg)
-                utils.print_message('послал коммент, owner={}'.format(id))
-                global SUCCESS_POST
-                SUCCESS_POST += 1
-            except:
-                #utils.print_message('для группы {} комменты на стене заблокированы'.format(id))
-                pass
-            if i == count:
-                break
-    return 0
+
+def get_rand_photo():
+    TRY_COUNT = 5
+    photo = None
+    for counter in range(TRY_COUNT):
+        photo_id = db_utils.get_random_photo(k=1)[0]
+        fn = db_utils.get_fn(photo_id)
+        if os.path.exists(fn):
+            photo = open(fn, 'rb')
+            break
+    if photo is None: return None
+    return photo
+
+
+def upload_photo_to_album(album_id):
+    try:
+        upload_info = API.photos.getUploadServer(album_id=album_id)
+        photo = get_rand_photo()
+        if photo is None: return None
+        resp = json.loads(requests.post(upload_info["upload_url"], files={"file1":photo}).content)
+        return API.photos.save(album_id=album_id, server=resp["server"], photos_list=resp["photos_list"], hash=resp["hash"])
+    except:
+        utils.print_message("Не удалось загрузить фотографию в альбом {}.".format(album_id))
+        utils.print_message(traceback.format_exc())
+    return None
+
+
+def upload_photo_to_message(peer_id):
+    try:
+        upload_info = API.photos.getMessagesUploadServer(peer_id=peer_id)
+        photo = get_rand_photo()
+        if photo is None: return None
+        resp = json.loads(requests.post(upload_info["upload_url"], files={"file1":photo}).content)
+        return API.photos.saveMessagesPhoto(server=resp["server"], photo=resp["photo"], hash=resp["hash"])
+    except:
+        utils.print_message("Не удалось загрузить фотографию в диалог {}.".format(peer_id))
+        utils.print_message(traceback.format_exc())
+    return None
+
+
+def upload_photo_to_wall(group_id):
+    try:
+        group_id = abs(int(group_id))
+        upload_info = API.photos.getWallUploadServer(group_id=group_id)
+        photo = get_rand_photo()
+        if photo is None: return None
+        resp = json.loads(requests.post(upload_info["upload_url"], files={"file1":photo}).content)
+        return API.photos.saveWallPhoto(group_id=group_id, server=resp["server"], photo=resp["photo"], hash=resp["hash"])
+    except:
+        utils.print_message("Не удалось загрузить фотографию на стену {}.".format(group_id))
+        utils.print_message(traceback.format_exc())
+    return None
 
 
 def like_to_friend():
@@ -80,7 +113,7 @@ def kill_badman():
             utils.print_message(traceback.format_exc())
             
             
-def send_comment_to_wall_post(msg, ids, count=20):
+def send_comment_to_wall_post(msg, ids, count=20, use_random_photo=False):
     for id in ids:
         try:
             t = random.randint(10, 11)
@@ -92,34 +125,45 @@ def send_comment_to_wall_post(msg, ids, count=20):
             continue
         for i, post in enumerate(posts_info):
             try:
-                t = random.randint(10, 11)
+                t = random.randint(5, 6)
                 time.sleep(t)
-                API.wall.createComment(owner_id=id, post_id=post['id'], message=msg)
+                att = upload_photo_to_wall(id)[0]["id"] if use_random_photo else None
+                API.wall.createComment(owner_id=id, post_id=post['id'], message=msg, attachments=att)
                 utils.print_message('послал коммент на стену. id сообщества: {}'.format(id))
                 global SUCCESS_POST
                 SUCCESS_POST += 1
+            except vk.exceptions.VkAPIError as e:
+                if e.code == 213:
+                    utils.print_message('для группы {} комменты на стене заблокированы'.format(id))
+                    break
+                else:
+                    utils.print_message(traceback.format_exc())
             except:
                 utils.print_message(traceback.format_exc())
-                #utils.print_message('для группы {} комменты на стене заблокированы'.format(id))
+                #
             if i == count:
                 break
-        return 0
-
-
-def send_post_on_wall(msg, id):
-    try:
-        API.wall.post(owner_id=id, message=msg)
-        utils.print_message('постнул на стену, owner={}'.format(id))
-        global SUCCESS_POST
-        SUCCESS_POST += 1
-    except:
-        utils.print_message(traceback.format_exc())
-        #utils.print_message('не постнул на стену((( {}'.format(id))
-        pass
     return 0
 
 
-def send_comment_to_photo(msg, ids, count=20, limit_al=2):
+def send_post_to_wall(msg, ids, use_random_photo=False):
+    for id in [ group["id"] for group in API.groups.getById(group_ids=[abs(int(id)) for id in ids], fields="can_post") if group["can_post"] == 1]:
+        try:
+            t = random.randint(5, 6)
+            time.sleep(t)
+            att = upload_photo_to_wall(id)[0]["id"] if use_random_photo else None
+            API.wall.post(owner_id=id, message=msg, attachments=att)
+            utils.print_message('постнул на стену, owner={}'.format(id))
+            global SUCCESS_POST
+            SUCCESS_POST += 1
+        except:
+            utils.print_message(traceback.format_exc())
+            #utils.print_message('не постнул на стену((( {}'.format(id))
+            pass
+    return 0
+
+
+def send_comment_to_photo(msg, ids, count=20, limit_al=2, use_random_photo=False):
     for id in ids:
         try:
             t = random.randint(10, 11)
@@ -138,22 +182,63 @@ def send_comment_to_photo(msg, ids, count=20, limit_al=2):
             if i_alb == limit_al:
                 break
             #utils.print_message('Текущий альбом {}'.format(i_alb))
-            t = random.randint(10, 11)
+            t = random.randint(5, 6)
             time.sleep(t)
             photos = API.photos.get(owner_id=id, count=count, album_id=album['aid'])  #  Получаем список фото
 
             for photo in photos:
                 photo_id = photo['pid']  #  Получаем адрес изображения
                 try:
-                    API.photos.createComment(owner_id=id, photo_id=photo_id, message=msg)
+                    t = random.randint(5, 6)
+                    time.sleep(t)
+                    att = upload_photo_to_wall(id)[0]["id"] if use_random_photo else None
+                    API.photos.createComment(owner_id=id, photo_id=photo_id, message=msg, attachments=att)
                     utils.print_message('добавил коммент под фотку, owner={}'.format(id))
-                    t = random.randint(10, 11)
                     global SUCCESS_POST
                     SUCCESS_POST += 1
+                except vk.exceptions.VkAPIError as e:
+                    if e.code == 213:
+                        utils.print_message('для группы {} комменты к фото заблокированы'.format(id))
+                        break
+                    else:
+                        utils.print_message(traceback.format_exc())
                 except:
                     utils.print_message(traceback.format_exc())
                     #utils.print_message("не смог закоментить фото в группе {}".format(id))
                     pass
+    return 0
+
+
+def send_comment_to_video(msg, ids, count=20, use_random_photo=False):
+    for id in ids:
+        # TODO переделай count
+        try:
+            t = random.randint(10, 11)
+            time.sleep(t)
+            videos_info = API.video.get(owner_id=id, count=count)[1:]
+        except:
+            #utils.print_message('нет доступа к видео {}'.format(id))
+            continue
+        for i, video in enumerate(videos_info):
+            try:
+                t = random.randint(5, 6)
+                time.sleep(t)
+                att = upload_photo_to_wall(id)[0]["id"] if use_random_photo else None
+                API.video.createComment(owner_id=id, video_id=video['vid'], message=msg, attachments=att)
+                utils.print_message('послал коммент, owner={}'.format(id))
+                global SUCCESS_POST
+                SUCCESS_POST += 1
+            except vk.exceptions.VkAPIError as e:
+                if e.code == 213:
+                    utils.print_message('для группы {} комменты к видео заблокированы'.format(id))
+                    break
+                else:
+                    utils.print_message(traceback.format_exc())
+            except:
+                #utils.print_message('для группы {} комменты на стене заблокированы'.format(id))
+                pass
+            if i == count:
+                break
     return 0
 
 
