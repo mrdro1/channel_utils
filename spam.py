@@ -7,6 +7,9 @@ import json
 #
 import vk
 import telegram
+from telethon import TelegramClient
+from telethon.utils import get_display_name
+from telethon.tl.types import InputPeerChat
 #
 import utils
 import db_utils
@@ -248,45 +251,41 @@ def get_gid_for_query(q, offset=20):
     gid = ['-' + str(g['gid']) for g in groups[1:]]
     return gid
 
+tlg_chats = \
+    [
+        "PrTalk2",
+        "bezdna42",
+        "odeepwebchat",
+        "findkievchat",
+        "govorismari",
+        "zayavi_o_sebe",
+        ]
+def send_message_to_telegram_chats(bot, msg=r"Ребят, смотрите классный канал нашёл недавно @join_relaxxx" , list_chat=tlg_chats):
+    """ """
+    success_msg = 0
+    for chat in list_chat:
 
-def send_message_to_telegram_chats():
-    from telethon import TelegramClient
-    from telethon.utils import get_display_name
-    from telethon.tl.types import InputPeerChat
+        try:
+            channel = bot.get_entity(chat)
+            bot.send_message(channel, msg)
+            print('Отправил в {}'.format(chat))
+            success_msg += 1
+        except:
 
-    api_id = 165394
-    api_hash = '42193b1c6ff424bf14a3e852bea3b8b0'
-    phone = '+79035350898'
+            #s = traceback.format_exc()
+            print("Не смог отправить {}".format(chat))
 
+        time.sleep(1)
+    return success_msg
+
+
+def create_tlg_client():
+    api_id, api_hash, phone = utils.read_tlg_token
 
     client = TelegramClient('@Sess81', api_id, api_hash)
     client.connect()
     client.sign_in(phone=phone)
-    #code = 74352
-    #me = client.sign_in(code=code)
     me = client.sign_in(code=input('введи код из сообщения от телеги: '))
     utils.print_message(client.is_user_authorized())
+    return client
 
-    chat_user_name = 'or_dg'
-    chats = [
-        "@atypical_chat",
-        "@PrTalk2",
-        "@chat30",
-        "@bezdna42",
-        "@odeepwebchat",
-        "@findkievchat",
-        "@ru2chhw",
-        "@govorismari",
-        "@littlepkbspb",
-        "@TGPR_RealType",
-        "@zayavi_o_sebe",
-        "@ru2chkz",
-        "@d4rkchat",
-        "@trollchat"
-        ]
-    message = r"Ребят, смотрите классный канал нашёл недавно https://t.me/join_relaxxx"  
-    for chat in chats:
-        channel = client.get_entity(chat)
-        client.send_message(channel, "")
-        time.sleep(2)
-    pass

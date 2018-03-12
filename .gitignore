@@ -7,3 +7,4 @@
 *.db
 *.db
 default_files/photo.db
+*.session
