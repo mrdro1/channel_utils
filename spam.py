@@ -135,6 +135,7 @@ def send_comment_to_wall_post(msg, ids, count=20, use_random_photo=False):
                 utils.print_message('послал коммент на стену. id сообщества: {}'.format(id))
                 global SUCCESS_POST
                 SUCCESS_POST += 1
+            except vk.exceptions.VkAPIError as e:
                 if e.code == 14:
                     input("Введите капчу. Нажмите Enter для продолжения.")
                 elif e.code == 213:
@@ -200,6 +201,7 @@ def send_comment_to_photo(msg, ids, count=20, limit_al=2, use_random_photo=False
                     utils.print_message('добавил коммент под фотку, owner={}'.format(id))
                     global SUCCESS_POST
                     SUCCESS_POST += 1
+                except vk.exceptions.VkAPIError as e:
                     if e.code == 14:
                         input("Введите капчу. Нажмите Enter для продолжения.")
                     elif e.code == 213:
