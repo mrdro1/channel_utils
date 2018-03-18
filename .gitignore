@@ -5,6 +5,8 @@
 *.jpg
 *.pyc
 *.db
-*.db
 default_files/photo.db
 *.session
+*.mp4
+*.db-journal
+*.txt

@@ -29,3 +29,6 @@ def send_to_channel(photo_id, chat_id='-1001189643268'):
         utils.print_message('Cannot send file')
         return False
     return True
+
+
+# 510929420

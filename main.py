@@ -28,6 +28,7 @@ PARAMS = {}
 #   mode - Mode of collect
 #          For example: source - istagramm,
 #                       mode - (all|feed_timeline|from_id)
+#   content_type - (video|photo)
 #   [id] - for instagram account id from download photo
 # 4. friends
 CONTROL_KEYS = [
@@ -39,7 +40,8 @@ CONTROL_KEYS = [
     "id",
     "ids",
     "query",
-    "text"
+    "text",
+    "content_type"
     ]
 
 CONTROL_DEFAULT_VALUES = collections.defaultdict(lambda: str())
@@ -57,7 +59,7 @@ def parser_init():
     requiredNamed = _parser.add_argument_group('Required arguments')
     requiredNamed.add_argument("-c", "--control", action="store", dest="CONTROL_FILE_NAME", help="Control file", type=str, required=True)
     try:
-        with open(_parser.parse_args().CONTROL_FILE_NAME, "r") as data_file:    
+        with open(_parser.parse_args().CONTROL_FILE_NAME, "r", encoding='UTF-8') as data_file:
             PARAMS.update(json.load(data_file))
         for key in PARAMS.keys():
             if not key in CONTROL_KEYS:
@@ -79,7 +81,7 @@ def main():
     if PARAMS['command'] is None:
         utils.print_message("Error: Empty command. Exit.")
         return
-    utils.print_message("Command: '{}'".format(PARAMS['command']))
+    #utils.print_message("Command: '{}'".format(PARAMS['command']))
     if PARAMS['command'].lower() == "post":
         chat_id='-1001189643268'
         utils.print_message("Processing...", 2)
@@ -92,7 +94,7 @@ def main():
     elif PARAMS['command'].lower() == "spam":
         ids = []
         if "query" in PARAMS:
-            ids.extend(spam.get_gid_for_query(q=PARAMS["query"], offset=2)[:10])
+            ids.extend(spam.get_gid_for_query(q=PARAMS["query"])[:10])
         if "ids" in PARAMS:
             ids.extend(PARAMS["ids"])
         msg = PARAMS["text"]
@@ -112,7 +114,10 @@ def main():
             elif PARAMS['mode'].lower() == "feed_timeline":
                 count = insta.get_timeline(PARAMS['count'])
             elif PARAMS['mode'].lower() == "from_id":
-                count = insta.get_user_photo(PARAMS['id'])
+                if PARAMS['content_type'].lower() == "video":
+                    count = insta.get_user_video(PARAMS['id'])
+                elif PARAMS['content_type'].lower() == "photo":
+                    count = insta.get_user_photo(PARAMS['id'])
             utils.print_message("Download photo: {}".format(count), 2)
     elif PARAMS['command'].lower() == "friends":
         utils.print_message("Processing...", 2)

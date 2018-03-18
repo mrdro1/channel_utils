@@ -1,3 +1,4 @@
+﻿
 from datetime import datetime
 import time
 
@@ -34,5 +35,5 @@ def read_tlg_token():
         api_id, api_hash, phone = line.split(',')
     return api_id, api_hash, phone
 
-a = read_tlg_token()
-print(a)
+#a = read_tlg_token()
+#print(a)

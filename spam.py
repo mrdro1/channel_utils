@@ -7,6 +7,8 @@ import telegram
 from telethon import TelegramClient
 from telethon.utils import get_display_name
 from telethon.tl.types import InputPeerChat
+from telethon.tl.types import InputChannel
+from telethon.tl.functions.channels import JoinChannelRequest
 #
 import utils
 
@@ -160,24 +162,38 @@ def send_comment_to_photo(msg, ids, count=20, limit_al=2):
     return 0
 
 
-def get_gid_for_query(q, offset=20):
+def get_gid_for_query(q, offset=0):
     groups = API.groups.search(q=q, count=1000, offset=offset)
     utils.print_message(len(groups))
     gid = ['-' + str(g['gid']) for g in groups[1:]]
     return gid
 
 tlg_chats = \
-    [
-        "PrTalk2",
-        "bezdna42",
-        "odeepwebchat",
-        "findkievchat",
-        "govorismari",
-        "zayavi_o_sebe",
-        ]
+    ['PRTalk',
+     'ipiar',
+     'FreeVPP',
+     'bezdna42',
+     'tgplug',
+     'piarzero',
+     'kingtelegrams',
+     'bestprchat',
+     'piardublechat',
+     'AdToChat',
+     'zayavi_o_sebe',
+     'PrTalk2',
+     'pr_vse',
+     'megi_VP',
+     'besplatnyipiar',
+     'piars',
+     'piar_podpiska',
+     'piarGo',
+     'prfree',
+     'TGPR_RealType']
 def send_message_to_telegram_chats(bot, msg=r"Ребят, смотрите классный канал нашёл недавно @join_relaxxx" , list_chat=tlg_chats):
     """ """
     success_msg = 0
+    list_chat = list(set(list_chat))
+    print('всего каналов для рассылки {}'.format(len(list_chat)))
     for chat in list_chat:
 
         try:
@@ -189,13 +205,15 @@ def send_message_to_telegram_chats(bot, msg=r"Ребят, смотрите кл�
 
             #s = traceback.format_exc()
             print("Не смог отправить {}".format(chat))
+            list_chat.remove(chat)
+
 
         time.sleep(1)
-    return success_msg
+    return success_msg, list_chat
 
 
 def create_tlg_client():
-    api_id, api_hash, phone = utils.read_tlg_token
+    api_id, api_hash, phone = utils.read_tlg_token()
 
     client = TelegramClient('@Sess81', api_id, api_hash)
     client.connect()
@@ -204,3 +222,16 @@ def create_tlg_client():
     utils.print_message(client.is_user_authorized())
     return client
 
+def join_to_channel(bot, list_ids=tlg_chats):
+    success_rate = 0
+    for id in list_ids:
+        try:
+            i = InputChannel(bot.get_entity(id).id, bot.get_entity(id).access_hash)
+            bot.invoke(JoinChannelRequest(i))
+            success_rate += 1
+            print("присоединился к {}".format(id))
+            time.sleep(5)
+        except:
+            print('не могу присоединиться к {}'.format(id))
+            list_ids.remove(id)
+    return success_rate/len(list_ids), list_ids

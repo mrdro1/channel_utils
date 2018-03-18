@@ -23,5 +23,5 @@ def chose_random_fn(dir='Instagram'):
 
 
 fn = chose_random_fn()
-fn = 'Instagram//1681115305881888767_5722067892.jpg'
-send_post(fn, r'This cool photo comes from Telegram channel https://t.me/join_relaxxx . \n')
+fn = 'Instagram//2.jpg'
+send_post(fn, r'This cool photo comes from Telegram channel https://t.me/join_relaxxx .')
