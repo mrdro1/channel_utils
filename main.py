@@ -41,7 +41,15 @@ CONTROL_KEYS = [
     "ids",
     "query",
     "text",
+<<<<<<< HEAD
     "content_type"
+=======
+    "use_random_photo",
+    "post_to_wall",
+    "post_to_comments_from_post",
+    "post_to_comments_from_video",
+    "post_to_comments_from_photo"
+>>>>>>> d025259baaf59dc42bfae83442538a7cc9d86639
     ]
 
 CONTROL_DEFAULT_VALUES = collections.defaultdict(lambda: str())
@@ -49,7 +57,12 @@ CONTROL_DEFAULT_VALUES = \
     {
         "command" : None,
         "timeout" : 2,
-        "count" : 2
+        "count" : 2,
+        "use_random_photo" : False,
+        "post_to_wall" : False,
+        "post_to_comments_from_post" : True,
+        "post_to_comments_from_video" : False,
+        "post_to_comments_from_photo" : False
     }
 
 
@@ -98,11 +111,14 @@ def main():
         if "ids" in PARAMS:
             ids.extend(PARAMS["ids"])
         msg = PARAMS["text"]
-        #spam.send_comment_to_photo(msg, ids, count=PARAMS["count"])
-        #spam.send_comment_to_video(msg, ids, count=PARAMS["count"])
-        spam.send_comment_to_wall_post(msg, ids, count=PARAMS["count"])
-        for id in ids:
-            spam.send_post_on_wall(msg, id)
+        if PARAMS["post_to_comments_from_photo"]:
+            spam.send_comment_to_photo(msg, ids, count=PARAMS["count"], use_random_photo=PARAMS["use_random_photo"])
+        if PARAMS["post_to_comments_from_video"]:
+            spam.send_comment_to_video(msg, ids, count=PARAMS["count"], use_random_photo=PARAMS["use_random_photo"])
+        if PARAMS["post_to_comments_from_post"]:
+            spam.send_comment_to_wall_post(msg, ids, count=PARAMS["count"], use_random_photo=PARAMS["use_random_photo"])
+        if PARAMS["post_to_wall"]:
+            spam.send_post_to_wall(msg, ids, use_random_photo=PARAMS["use_random_photo"])
         utils.print_message('успешных постов = {}'.format(spam.SUCCESS_POST), 2)
     elif PARAMS['command'].lower() == "collect":
         if PARAMS['source'].lower() == "instagram":

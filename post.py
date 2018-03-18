@@ -14,9 +14,19 @@ tags = [
         '#sexy', '#body', '#beautiful', '#girl', '#girls', 
         '#perfect', '#supergirls', '#model', '#beauty', '#glamour',
         '#lingerie', '#sensual', '#fitnessmodel', '#bestgirl', 
-        '#sport', '#fitnessgirl', '#hot', '#hotgirl', '#beautifulbody'
+        '#sport', '#fitnessgirl', '#hot', '#hotgirl', '#beautifulbody',
+        '#FitnessCure', '#Fitlife', '#Gethealthy', '#Healthylife',
+        '#Delhi', '#SlimmingWorld', '#HealthBenefits', '#Results',
+        '#Magic', '#Workout', '#Reviews', '#fitbody', '#Shape',
+        '#InspirationalQuotes', '#Throwback', '#Nature', '#BestoftheDay',
+        '#gorgeous', '#beautiful', '#fitchick', '#bikinibody',
+        '#bikinimodel', '#fitnessmodel', '#bikinigoddess', '#sexy',
+        '#abs', '#sexyabs', '#abgoals', '#abcheck', '#fitnessgirl',
+        '#model', '#swimsuitmodel', '#dreamgirl', '#goddess', '#skinny',
+        '#sexystomach', '#fitnessmotivation', '#beachbabe', '#bodygoals',
+        '#perfectbody', '#bikini', '#bikinibody', '#bikiniphoto', '#Baler'
        ]
-	   
+       
 def send_to_channel(photo_id, chat_id='-1001189643268'):
     fn = db_utils.get_fn(photo_id)
     try:
